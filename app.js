@@ -1,31 +1,34 @@
 const http = require("http");
-const os = require('os');
-
-const hostName = "127.0.0.1";
+const os = require("os");
 
 const port = 3000;
+const hostName = '127.0.0.1'
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin','*');
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS,DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-setTimeout(()=>{
-    res.writeHead(200,{'Content-Type':'text/plain'});
-    res.end('Hello ')
-}, Math.random() * 2000);
+  // Enable CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-});
+  if (req.method === "OPTIONS") {
+    // Handle preflight request
+    res.writeHead(200);
+    res.end();
+    return;
+  }
 
-if(req.url === 'getInfo'){
+  if (req.url === "/info") {
     const cpuInfo = os.cpus()[0].model;
     const osInfo = `${os.type()} ${os.release()}`;
-    const response = {cpuInfo,osInfo};
-    res.writeHead(200,{'Content-Typee':'application/json'})
-}else{
-    res.writeHead(400);
-    res.end('Not Found');
-}
+    const response = { cpuInfo, osInfo };
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(response));
+  } else {
+    res.writeHead(200);
+    res.end(`Visit '${hostName}/${port}/info' to get your pc info`);
+  }
+});
 
-server.listen(port, hostName, () => {
-  console.log(`Server running at http://${hostName}:${port}`);
+server.listen(port,hostName, () => {
+  console.log(`Server running at http://localhost:${port}/`);
 });
